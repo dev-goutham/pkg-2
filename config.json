@@ -1,0 +1,14 @@
+{
+  "server": {
+    "port": 5000,
+    "host": "localhost"
+  },
+  "database": {
+    "username": "goutham",
+    "password": "password",
+    "databaseName": "mydb"
+  },
+  "misc": {
+    "message": "Hello from config"
+  }
+}
