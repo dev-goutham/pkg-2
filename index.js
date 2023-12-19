@@ -6,38 +6,33 @@ const { program } = require("commander");
 
 console.log(yargs.argv.config);
 
-let port;
-let message;
-let username;
+const configPath = yargs.argv.config;
 
-if (yargs.argv.config) {
-  const configFilePath = yargs.argv.config;
-  console.log(`Config file path: ${configFilePath}`);
-  const absoluteConfigPath = path.resolve(configFilePath);
-  fs.readFile(absoluteConfigPath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading config file:", err);
-      process.exit(1);
-    }
+const isValidFile = (p) => {
+  const splitPath = p.split("/");
+  return splitPath[splitPath.length - 1] === "default.json";
+};
 
-    try {
-      const config = JSON.parse(data);
-
-      port = config.server.port;
-      //   const databaseName = config.database.databaseName;
-      message = config.misc.message;
-      username = config.database.username;
-
-      console.log(`Server Port: ${port}`);
-      //   console.log(`Database Name: ${databaseName}`);
-    } catch (parseError) {
-      console.error("Error parsing config file:", parseError);
-    }
-  });
-} else {
+if (!configPath) {
   console.error("No config file path provided.");
   process.exit(1);
 }
+
+if (!isValidFile(configPath)) {
+  console.error("Config file name needs to be default.json");
+  process.exit(1);
+}
+
+const splitPath = configPath.split("/");
+splitPath.splice(splitPath.length - 1, 1);
+const dirPath = splitPath.join("/");
+
+process.env["NODE_CONFIG_DIR"] = path.resolve(__dirname, dirPath);
+const config = require("config");
+
+const port = config.get("server.port");
+const username = config.get("database.username");
+const message = config.get("misc.message");
 
 const app = express();
 let server;
@@ -58,26 +53,30 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
-program.requiredOption("-c, --config <path>", "Path to the config file");
+app.listen(port, () => {
+  console.log(`Server running on: ${port}`);
+});
 
-program
-  .command("start")
-  .description("Start the background app")
-  .action(() => {
-    console.log("App started in the background.");
-    server = app.listen(port, () => {
-      console.log(`Server running on: ${server.address().port}`);
-    });
-  });
+// program.requiredOption("-c, --config <path>", "Path to the config file");
 
-program
-  .command("stop")
-  .description("Stop the background app")
-  .action(() => {
-    server.close(() => {
-      console.log("Server stopped");
-      process.exit(0);
-    });
-  });
+// program
+//   .command("start")
+//   .description("Start the background app")
+//   .action(() => {
+//     console.log("App started in the background.");
+//     server = app.listen(port, () => {
+//       console.log(`Server running on: ${server.address().port}`);
+//     });
+//   });
 
-program.parse(process.argv);
+// program
+//   .command("stop")
+//   .description("Stop the background app")
+//   .action(() => {
+//     server.close(() => {
+//       console.log("Server stopped");
+//       process.exit(0);
+//     });
+//   });
+
+// program.parse(process.argv);

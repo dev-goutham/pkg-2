@@ -10,5 +10,6 @@
   },
   "misc": {
     "message": "Hello from config"
-  }
+  },
+  "name": "****"
 }
