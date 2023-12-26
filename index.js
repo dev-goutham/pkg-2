@@ -28,9 +28,12 @@ splitPath.splice(splitPath.length - 1, 1);
 const dirPath = splitPath.join("/");
 
 process.env["NODE_CONFIG_DIR"] = path.resolve(__dirname, dirPath);
+console.log(process.env["NODE_CONFIG_DIR"]);
 const config = require("config");
+const showAuthMessage = require("./routes/auth");
 
 const port = config.get("server.port");
+console.log(port);
 const username = config.get("database.username");
 const message = config.get("misc.message");
 
@@ -53,30 +56,8 @@ app.get("/", (req, res) => {
   </html>`);
 });
 
+app.route("/auth").get(showAuthMessage);
+
 app.listen(port, () => {
   console.log(`Server running on: ${port}`);
 });
-
-// program.requiredOption("-c, --config <path>", "Path to the config file");
-
-// program
-//   .command("start")
-//   .description("Start the background app")
-//   .action(() => {
-//     console.log("App started in the background.");
-//     server = app.listen(port, () => {
-//       console.log(`Server running on: ${server.address().port}`);
-//     });
-//   });
-
-// program
-//   .command("stop")
-//   .description("Stop the background app")
-//   .action(() => {
-//     server.close(() => {
-//       console.log("Server stopped");
-//       process.exit(0);
-//     });
-//   });
-
-// program.parse(process.argv);
